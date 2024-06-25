@@ -1,0 +1,222 @@
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate = "layout/main.html">
+<div layout:fragment="mainContent">
+    <!-- Button Add Task -->
+    <div class="row">
+      <div class="col-12 my-2">
+        <button type="button" class="button_style"
+                data-bs-toggle="modal" data-bs-target="#addTaskModal"
+                th:text="'+New Task'">
+        </button>
+      </div>
+    </div>
+    <!-- List of Tasks -->
+    <div class="row">
+      <div class="col-12 mt-3">
+        <table class="table table-striped">
+          <thead>
+          <tr class="fw-bold">
+            <td th:text="'ID'"></td>
+            <td th:text="'Task Name'"></td>
+            <td th:text="'Deadline Date'"></td>
+            <td th:text="'Status'"></td>
+            <td width="10%" th:text="'Details'"></td>
+            <td width="10%" th:text="'Delete'"></td>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="tsk : ${tasks}">
+            <td th:text="${tsk.id}"></td>
+            <td th:text="${tsk.title}"></td>
+            <td th:text="${tsk.deadlineDate}"></td>
+            <td th:text="${tsk.status}"></td>
+            <td>
+              <button class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal" th:data-bs-target="'#editTaskModal' + ${tsk.id}"
+                      th:text="'View More'">
+              </button>
+            </td>
+            <td>
+              <button class="btn btn-danger btn-sm"
+                      data-bs-toggle="modal" th:data-bs-target="'#deleteTaskModal' + ${tsk.id}"
+                      th:text="'Delete'">
+              </button>
+            </td>
+            <!-- Modal Edit Task -->
+            <div class="modal fade" th:id="'editTaskModal' + ${tsk.id}"
+                 data-bs-backdrop="static" data-bs-keyboard="false"
+                 tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+              <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                  <form th:action="@{'/edittask'}" method="post">
+                    <input type="hidden" name="task_id" th:value="${tsk.id}">
+                    <div class="modal-header">
+                      <h5 class="modal-title"
+                          th:text="'EDIT TASK'">
+                      </h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal"
+                              aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      <div class="row mt-3">
+                        <div class="col-12">
+                          <label th:text="'Title'"></label>
+                        </div>
+                      </div>
+                      <div class="row mt-2">
+                        <div class="col-12">
+                            <input type="text" class="form-control" name="task_title" required
+                                   th:value="${tsk.title}">
+                        </div>
+                      </div>
+                      <div class="row mt-3">
+                        <div class="col-12">
+                          <label th:text="'Description'"></label>
+                        </div>
+                      </div>
+                      <div class="row mt-2">
+                        <div class="col-12">
+                            <textarea class="form-control" name="task_description"
+                                      th:text="${tsk.description}">
+                            </textarea>
+                        </div>
+                      </div>
+                      <div class="row mt-3">
+                        <div class="col-12">
+                          <label th:text="'Deadline Date'"></label>
+                        </div>
+                      </div>
+                      <div class="row mt-2">
+                        <div class="col-12">
+                            <input type="date" class="form-control" name="task_deadline_date" required
+                                   th:value="${tsk.deadlineDate}">
+                        </div>
+                      </div>
+                      <div class="row mt-3">
+                        <div class="col-12">
+                          <label th:text="'Status'"></label>
+                        </div>
+                      </div>
+                      <div class="row mt-2">
+                        <div class="col-12">
+                            <input type="number" class="form-control" min="0" max="3" step="1"  name="task_status"
+                                   required th:value="${tsk.status}">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                              th:text="'Close'">
+                      </button>
+                      <button class="btn btn-primary"
+                              th:text="'Save Task'">
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <!-- Modal Delete Task -->
+            <div class="modal fade" th:id="'deleteTaskModal' + ${tsk.id}"
+                 data-bs-backdrop="static" data-bs-keyboard="false"
+                 tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <form th:action="@{'/deletetask'}" method="post">
+                    <input type="hidden" name="task_id" th:value="${tsk.id}">
+                    <div class="modal-header">
+                      <h5 class="modal-title" th:text="'DELETE TASK'"></h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal"
+                              aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      <h6 th:text="'Do you want to delete the Task?'"></h6>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                              th:text="'Cancel'"></button>
+                      <button class="btn btn-danger" th:text="'Delete'"></button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <!-- Modal Add Task -->
+    <div class="modal fade" id="addTaskModal"
+         data-bs-backdrop="static" data-bs-keyboard="false"
+         tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <form th:action="@{'/addtask'}" method="post">
+            <div class="modal-header">
+              <h5 class="modal-title"
+                  th:text="'Add Task'">
+              </h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"
+                      aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <div class="row mt-3">
+                <div class="col-12">
+                  <label th:text="'Title'"></label>
+                </div>
+              </div>
+              <div class="row mt-2">
+                <div class="col-12">
+                    <input type="text" class="form-control" name="task_title" required>
+                </div>
+              </div>
+              <div class="row mt-3">
+                <div class="col-12">
+                  <label th:text="'Description'"></label>
+                </div>
+              </div>
+              <div class="row mt-2">
+                <div class="col-12">
+                    <textarea class="form-control" name="task_description"></textarea>
+                </div>
+              </div>
+              <div class="row mt-3">
+                <div class="col-12">
+                  <label th:text="'Deadline Date'"></label>
+                </div>
+              </div>
+              <div class="row mt-2">
+                <div class="col-12">
+                    <input type="date" class="form-control" name="task_deadline_date"
+                           required>
+                </div>
+              </div>
+              <div class="row mt-3">
+                <div class="col-12">
+                  <label th:text="'Status'"></label>
+                </div>
+              </div>
+              <div class="row mt-2">
+                <div class="col-12">
+                    <input type="number" class="form-control" name="task_status" min="0" max="3" step="1"
+                           required value="0">
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                      th:text="'Close'">
+              </button>
+              <button class="btn btn-primary"
+                      th:text="'Add Task'">
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+</div>
+</html>
