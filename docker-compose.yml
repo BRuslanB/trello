@@ -1,0 +1,33 @@
+version: '3.9'
+services:
+  db_postgres:
+    image: bruslanb/postgres:alpine # use image from docker hub
+    container_name: pg-sql-server-container
+    environment:
+      POSTGRES_DB: trello_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - '5440:5432'
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  app:
+    image: bruslanb/app-user-trello-image:1.0.1 # use image from docker hub
+    container_name: app-user-trello-container
+    user: '1001:1001' # specify the UID and GID of the user you want to run the container as
+    depends_on:
+      db_postgres:
+        condition: service_healthy
+    environment:
+      - SERVER_PORT=8080
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db_postgres:5432/postgres
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+    ports:
+      - '8000:8080'
